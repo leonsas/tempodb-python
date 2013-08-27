@@ -75,12 +75,13 @@ class DataPoint(object):
 
 class DataSet(object):
 
-    def __init__(self, series, start, end, data=[], summary=None):
+    def __init__(self, series, start, end, data=[], summary=None, rollup=None):
         self.series = series
         self.start = start
         self.end = end
         self.data = data
         self.summary = summary
+        self.rollup = rollup
 
     def __str__(self):
         return str(self.__dict__)
@@ -97,7 +98,8 @@ class DataSet(object):
 
         data = [DataPoint.from_json(dp) for dp in json.get("data", [])]
         summary = Summary.from_json(json.get('summary', {})) if 'summary' in json else None
-        return DataSet(series, start_date, end_date, data, summary)
+        rollup = Rollup.from_json(json.get('rollup', {})) if 'rollup' in json else None
+        return DataSet(series, start_date, end_date, data, summary, rollup)
 
 
 class Summary(object):
@@ -114,5 +116,19 @@ class Summary(object):
         summary.__dict__.update(json)
         return summary
 
+
+class Rollup(object):
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    @staticmethod
+    def from_json(json):
+        rollup = Rollup()
+        rollup.__dict__.update(json)
+        return rollup
 
 

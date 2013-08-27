@@ -8,7 +8,7 @@ import simplejson
 from unittest2 import TestCase
 
 import tempodb
-from tempodb import Client, DataPoint, DataSet, Series, Summary
+from tempodb import Client, DataPoint, DataSet, Series, Summary, Rollup
 
 
 class MockResponse(object):
@@ -62,7 +62,6 @@ class ClientTest(TestCase):
         self.assertEqual(client.build_full_url('/etc'), 'https://example.com:88/v1/etc')
         client = Client('key', 'secret', 'example.com', 80, True)
         self.assertEqual(client.build_full_url('/etc'), 'https://example.com:80/v1/etc')
-
     def test_get_series(self):
         self.client.session.get.return_value = MockResponse(200, """[{
             "id": "id",
@@ -130,14 +129,15 @@ class ClientTest(TestCase):
             "start": "2012-03-27T00:00:00.000",
             "end": "2012-03-28T00:00:00.000",
             "data": [{"t": "2012-03-27T00:00:00.000", "v": 12.34}],
-            "summary": {}
+            "summary": {},
+            "rollup": {}
         }""")
 
         start = datetime.datetime(2012, 3, 27)
         end = datetime.datetime(2012, 3, 28)
         dataset = self.client.read_id('id', start, end)
 
-        expected = DataSet(Series('id', 'key'), start, end, [DataPoint(start, 12.34)], Summary())
+        expected = DataSet(Series('id', 'key'), start, end, [DataPoint(start, 12.34)], Summary(), Rollup())
         self.client.session.get.assert_called_once_with(
             'https://example.com/v1/series/id/id/data/?start=2012-03-27T00%3A00%3A00&end=2012-03-28T00%3A00%3A00',
             auth=('key', 'secret'),
@@ -157,14 +157,15 @@ class ClientTest(TestCase):
             "start": "2012-03-27T00:00:00.000",
             "end": "2012-03-28T00:00:00.000",
             "data": [{"t": "2012-03-27T00:00:00.000", "v": 12.34}],
-            "summary": {}
+            "summary": {},
+            "rollup": {}
         }""")
 
         start = datetime.datetime(2012, 3, 27)
         end = datetime.datetime(2012, 3, 28)
         dataset = self.client.read_key('key1', start, end)
 
-        expected = DataSet(Series('id', 'key1'), start, end, [DataPoint(start, 12.34)], Summary())
+        expected = DataSet(Series('id', 'key1'), start, end, [DataPoint(start, 12.34)], Summary(), Rollup())
         self.client.session.get.assert_called_once_with(
             'https://example.com/v1/series/key/key1/data/?start=2012-03-27T00%3A00%3A00&end=2012-03-28T00%3A00%3A00',
             auth=('key', 'secret'),
@@ -184,19 +185,22 @@ class ClientTest(TestCase):
             "start": "2012-03-27T00:00:00.000",
             "end": "2012-03-28T00:00:00.000",
             "data": [{"t": "2012-03-27T00:00:00.000", "v": 12.34}],
-            "summary": {}
+            "summary": {},
+            "rollup": {}
         }""")
 
         start = datetime.datetime(2012, 3, 27)
         end = datetime.datetime(2012, 3, 28)
         dataset = self.client.read_key('ke:y/1', start, end)
 
-        expected = DataSet(Series('id', 'ke:y/1'), start, end, [DataPoint(start, 12.34)], Summary())
+        expected = DataSet(Series('id', 'ke:y/1'), start, end, [DataPoint(start, 12.34)], Summary(), Rollup())
         self.client.session.get.assert_called_once_with(
             'https://example.com/v1/series/key/ke%3Ay%2F1/data/?start=2012-03-27T00%3A00%3A00&end=2012-03-28T00%3A00%3A00',
             auth=('key', 'secret'),
             headers=self.get_headers
         )
+        print dataset
+        print expected
         self.assertEqual(dataset, expected)
 
     def test_read(self):
@@ -211,14 +215,15 @@ class ClientTest(TestCase):
             "start": "2012-03-27T00:00:00.000",
             "end": "2012-03-28T00:00:00.000",
             "data": [{"t": "2012-03-27T00:00:00.000", "v": 12.34}],
-            "summary": {}
+            "summary": {},
+            "rollup": {}
         }]""")
 
         start = datetime.datetime(2012, 3, 27)
         end = datetime.datetime(2012, 3, 28)
         datasets = self.client.read(start, end, keys=['key1'])
 
-        expected = [DataSet(Series('id', 'key1'), start, end, [DataPoint(start, 12.34)], Summary())]
+        expected = [DataSet(Series('id', 'key1'), start, end, [DataPoint(start, 12.34)], Summary(), Rollup())]
         self.client.session.get.assert_called_once_with(
             'https://example.com/v1/data/?start=2012-03-27T00%3A00%3A00&end=2012-03-28T00%3A00%3A00&key=key1',
             auth=('key', 'secret'),
