@@ -20,9 +20,6 @@ API_HOST = 'api.tempo-db.com'
 API_PORT = 443
 API_VERSION = 'v1'
 
-VALID_SERIES_KEY = r'^[a-zA-Z0-9\.:;\-_/\\ ]*$'
-RE_VALID_SERIES_KEY = re.compile(VALID_SERIES_KEY)
-
 
 class Client(object):
 
@@ -62,8 +59,6 @@ class Client(object):
         return series
 
     def create_series(self, key=None):
-        if key and not RE_VALID_SERIES_KEY.match(key):
-            raise ValueError("Series key must match the following regex: %s" % (VALID_SERIES_KEY,))
 
         params = {}
         if key is not None:
