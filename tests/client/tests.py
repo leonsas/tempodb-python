@@ -100,9 +100,6 @@ class ClientTest(TestCase):
         expected = Series('id', 'my-key.tag1.1', '', {}, ['my-key', 'tag1'])
         self.assertEqual(series, expected)
 
-    def test_create_series_validity_error(self):
-        with self.assertRaises(ValueError):
-            series = self.client.create_series('key.b%^.test')
 
     def test_update_series(self):
         update = Series('id', 'key', 'name', {'key1': 'value1'}, ['tag1'])
