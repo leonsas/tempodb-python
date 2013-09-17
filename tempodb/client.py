@@ -124,9 +124,6 @@ class Client(object):
         return self._write(series_type, series_val, data)
 
     def write_key(self, series_key, data):
-        if series_key and not RE_VALID_SERIES_KEY.match(series_key):
-            raise ValueError("Series key must match the following regex: %s" % (VALID_SERIES_KEY,))
-
         series_type = 'key'
         series_val = series_key
         return self._write(series_type, series_val, data)
@@ -145,9 +142,6 @@ class Client(object):
         return self._increment(series_type, series_val, data)
 
     def increment_key(self, series_key, data):
-        if series_key and not RE_VALID_SERIES_KEY.match(series_key):
-            raise ValueError("Series key must match the following regex: %s" % (VALID_SERIES_KEY,))
-
         series_type = 'key'
         series_val = series_key
         return self._increment(series_type, series_val, data)
